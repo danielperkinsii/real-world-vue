@@ -7,6 +7,7 @@
 
 <script>
 import EventCard from '../components/EventCard'
+import EventService from '../services/EventService';
 
 export default {
   name: "EventList",
@@ -15,8 +16,15 @@ export default {
   },
   data() {
     return {
-      
+      events: null,
     }
+  },
+  created() {
+    EventService.getEvents()
+    .then(res => {
+      this.events = res.data;
+    })
+    .catch(err => console.log(err))
   }
 };
 </script>
