@@ -8,7 +8,9 @@ import About from "../views/About.vue";
 import SimpleForm from "../views/SimpleForm.vue";
 import NotFound from "../views/NotFound.vue";
 import NetworkError from "../views/NetworkError.vue";
-
+import NProgress from 'nprogress';
+import EventService from '../services/EventService';
+import GStore from '../store/index';
 
 const routes = [
   {
@@ -22,6 +24,19 @@ const routes = [
     name: "EventLayout",
     props: true,
     component: EventLayout,
+    beforeEnter: to => {
+      return EventService.getEvent(to.params.id)
+      .then(res => {
+        GStore.event = res.data
+      })
+      .catch((err) => {
+        if (err.response && err.response.status === 404) {
+          return { name: '404Resource', params: { resource: 'event' } }
+        } else {
+          return { name: 'NetworkError' }
+        }     
+      })
+    },
     children: [
       {
         path: '',
@@ -72,5 +87,13 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+
+router.beforeEach(() => {
+  NProgress.start()
+})
+
+router.afterEach(() => {
+  NProgress.done()
+})
 
 export default router;
